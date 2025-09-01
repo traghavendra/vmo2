@@ -60,10 +60,11 @@ class HPE3PARDriverBase(driver.ManageableVD,
         1.0.4 - Fixed Volume migration for "in-use" volume. bug #1744021
         1.0.5 - Set proper backend on subsequent operation, after group
                 failover. bug #1773069
+        1.0.6 - Fix session share issue. bug number <todo>
 
     """
 
-    VERSION = "1.0.5"
+    VERSION = "1.0.6"
 
     def __init__(self, *args, **kwargs):
         super(HPE3PARDriverBase, self).__init__(*args, **kwargs)
@@ -78,18 +79,22 @@ class HPE3PARDriverBase(driver.ManageableVD,
         return hpecommon.HPE3PARCommon.get_driver_options()
 
     def _init_common(self):
-        self.common = hpecommon.HPE3PARCommon(self.configuration,
-                                              self._active_backend_id)
-        return self.common
+        return hpecommon.HPE3PARCommon(self.configuration,
+                                       self._active_backend_id)
 
-    def _login(self, timeout=None, array_id=None):
-        self.common = self._init_common()
+    def _login(self, timeout=None, array_id=None, shared_obj=True):
+        if shared_obj:
+            if self.common:
+                # self.common is not None
+                return self.common
+
+        common = self._init_common()
         # If replication is enabled and we cannot login, we do not want to
         # raise an exception so a failover can still be executed.
         try:
-            self.common.do_setup(None, timeout=timeout, stats=self._stats,
-                                 array_id=array_id)
-            self.common.client_login()
+            common.do_setup(None, timeout=timeout, stats=self._stats,
+                            array_id=array_id)
+            common.client_login()
         except Exception:
             if self.common._replication_enabled:
                 LOG.warning("The primary array is not reachable at this "
@@ -98,7 +103,11 @@ class HPE3PARDriverBase(driver.ManageableVD,
                             "a volume can still be performed.")
             else:
                 raise
-        return self.common
+        if shared_obj:
+            self.common = common
+            return self.common
+        else:
+            return common
 
     def _logout(self, common):
         # If replication is enabled and we do not have a client ID, we did not
@@ -130,7 +139,9 @@ class HPE3PARDriverBase(driver.ManageableVD,
         if not refresh:
             return self._stats
 
-        self._stats = self.common.get_volume_stats(
+        common = self._login()
+
+        self._stats = common.get_volume_stats(
             refresh,
             self.get_filter_function(),
             self.get_goodness_function())
