@@ -133,10 +133,11 @@ class HPE3PARISCSIDriver(hpebasedriver.HPE3PARDriverBase):
         4.0.8 - Add ipv6 support. Bug #2045411
         4.0.9 - getWsApiVersion now requires login
         4.0.10 - Ignore duplicate IP address in iSCSI/vlan ip
+        4.0.11 - Fix session share issue. bug number <todo>
 
     """
 
-    VERSION = "4.0.10"
+    VERSION = "4.0.11"
 
     # The name of the CI wiki page.
     CI_WIKI_NAME = "HPE_Storage_CI"
@@ -400,7 +401,7 @@ class HPE3PARISCSIDriver(hpebasedriver.HPE3PARDriverBase):
         LOG.debug("volume id: %(volume_id)s",
                   {'volume_id': volume['id']})
         array_id = self.get_volume_replication_driver_data(volume)
-        common = self._login(array_id=array_id)
+        common = self._login(array_id=array_id, shared_obj=False)
         try:
             # If the volume has been failed over, we need to reinitialize
             # iSCSI ports so they represent the new array.
@@ -555,8 +556,10 @@ class HPE3PARISCSIDriver(hpebasedriver.HPE3PARDriverBase):
     @coordination.synchronized('3par-{volume.id}')
     def terminate_connection(self, volume, connector, **kwargs):
         """Driver entry point to detach a volume from an instance."""
+        LOG.debug("volume id: %(volume_id)s",
+                  {'volume_id': volume['id']})
         array_id = self.get_volume_replication_driver_data(volume)
-        common = self._login(array_id=array_id)
+        common = self._login(array_id=array_id, shared_obj=False)
         try:
             is_force_detach = connector is None
 
@@ -836,7 +839,7 @@ class HPE3PARISCSIDriver(hpebasedriver.HPE3PARDriverBase):
 
     @volume_utils.trace
     def create_export(self, context, volume, connector):
-        common = self._login()
+        common = self._login(shared_obj=False)
         try:
             return self._do_export(common, volume, connector)
         finally:
@@ -848,7 +851,7 @@ class HPE3PARISCSIDriver(hpebasedriver.HPE3PARDriverBase):
 
         Also retrieves CHAP credentials, if present on the volume
         """
-        common = self._login()
+        common = self._login(shared_obj=False)
         try:
             vol_name = common._get_3par_vol_name(volume)
             common.client.getVolume(vol_name)
