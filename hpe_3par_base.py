@@ -82,11 +82,12 @@ class HPE3PARDriverBase(driver.ManageableVD,
         return hpecommon.HPE3PARCommon(self.configuration,
                                        self._active_backend_id)
 
+    # Initializes and logs in to the 3PAR array.
+    # If shared_obj is True, reuses self.common if available.
+    # Handles replication failover scenarios gracefully.
     def _login(self, timeout=None, array_id=None, shared_obj=True):
-        if shared_obj:
-            if self.common:
-                # self.common is not None
-                return self.common
+        if shared_obj and self.common:
+            return self.common
 
         common = self._init_common()
         # If replication is enabled and we cannot login, we do not want to
@@ -96,7 +97,7 @@ class HPE3PARDriverBase(driver.ManageableVD,
                             array_id=array_id)
             common.client_login()
         except Exception:
-            if self.common._replication_enabled:
+            if common._replication_enabled:
                 LOG.warning("The primary array is not reachable at this "
                             "time. Since replication is enabled, "
                             "listing replication targets and failing over "
@@ -106,8 +107,8 @@ class HPE3PARDriverBase(driver.ManageableVD,
         if shared_obj:
             self.common = common
             return self.common
-        else:
-            return common
+
+        return common
 
     def _logout(self, common):
         # If replication is enabled and we do not have a client ID, we did not
