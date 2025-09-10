@@ -931,6 +931,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             mock_create_client.return_value = mock_client
             if not wsapi_version:
                 # (i) old/default
+                self.driver._login()
                 self.driver.create_volume(self.volume)
             else:
                 # (ii) wsapi 2023
@@ -969,6 +970,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.create_volume(volume)
             comment = Comment({
                 "display_name": "Foo Volume",
@@ -996,6 +998,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             return_model = self.driver.create_volume(self.volume_pool)
             comment = Comment({
                 "display_name": "Foo Volume",
@@ -1154,6 +1157,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             return_model = self.driver.create_volume(self.volume_qos)
             comment = Comment({
                 "volume_type_name": "gold",
@@ -1205,6 +1209,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                 '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             return_model = self.driver.create_volume(self.volume_replicated)
             comment = Comment({
                 "volume_type_name": "replicated",
@@ -1279,6 +1284,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             volume = copy.deepcopy(self.volume_replicated)
             volume['status'] = 'available'
             volume['replication_status'] = 'failed-over'
+            self.driver._login()
             self.driver.delete_volume(volume)
 
             rcg_name = self.RCG_3PAR_NAME + ".r" + self.CLIENT_ID
@@ -1409,6 +1415,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                 '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             return_model = self.driver.create_volume(self.volume_replicated)
             comment = Comment({
                 "volume_type_name": "replicated",
@@ -1478,6 +1485,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                 '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             return_model = self.driver.create_volume(self.volume_replicated)
             comment = Comment({
                 "volume_type_name": "replicated",
@@ -1555,6 +1563,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             return_model = self.driver.create_volume(
                 self.volume_dedup_compression)
             comment = Comment({
@@ -1600,6 +1609,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             return_model = self.driver.create_volume(self.volume_dedup)
             comment = Comment({
                 "volume_type_name": "dedup",
@@ -1649,6 +1659,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             mock_client.FLASH_CACHE_ENABLED = FLASH_CACHE_ENABLED
             mock_client.FLASH_CACHE_DISABLED = FLASH_CACHE_DISABLED
 
+            self.driver._login()
             return_model = self.driver.create_volume(self.volume_flash_cache)
             comment = Comment({
                 "volume_type_name": "flash-cache-on",
@@ -2412,6 +2423,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.delete_volume(getattr(self, volume_attr))
 
             name_3par = getattr(self, volume_attr.upper() + '_3PAR_NAME')
@@ -2430,6 +2442,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             ex._error_code = 151
             mock_client.deleteVolume = mock.Mock(side_effect=ex)
             mock_client.isOnlinePhysicalCopy.return_value = True
+            self.driver._login()
             self.driver.delete_volume(self.volume)
 
             expected = [
@@ -2451,6 +2464,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.delete_volume(self.volume)
 
             expected = [
@@ -2537,6 +2551,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             mock_create_client.return_value = mock_client
             volume = copy.deepcopy(self.volume_replicated)
             volume['status'] = 'available'
+            self.driver._login()
             self.driver.delete_volume(volume)
 
             expected = [
@@ -2578,6 +2593,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             volume = copy.deepcopy(self.volume_replicated)
             volume['status'] = 'available'
             volume['migration_status'] = 'success'
+            self.driver._login()
             self.driver.delete_volume(volume)
 
             rcg_name_updated = 'rcg-CArwlBBhRqq3K-eLUh'
@@ -2816,6 +2832,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             src_vref = {'id': HPE3PARBaseDriver.VOLUME_ID,
                         'name': HPE3PARBaseDriver.VOLUME_NAME,
                         'size': 2, 'status': 'backing-up'}
+            self.driver._login()
             model_update = self.driver.create_cloned_volume(volume, src_vref)
             self.assertIsNone(model_update)
             # creation of the temp snapshot
@@ -2859,6 +2876,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             src_vref = {'id': HPE3PARBaseDriver.VOLUME_ID,
                         'name': HPE3PARBaseDriver.VOLUME_NAME,
                         'size': 2, 'status': 'available'}
+            self.driver._login()
             model_update = self.driver.create_cloned_volume(volume, src_vref)
             self.assertIsNone(model_update)
 
@@ -2907,6 +2925,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             src_vref = {'id': HPE3PARBaseDriver.VOLUME_ID,
                         'name': HPE3PARBaseDriver.VOLUME_NAME,
                         'size': 5, 'status': 'backing-up'}
+            self.driver._login()
             model_update = self.driver.create_cloned_volume(volume, src_vref)
             self.assertIsNone(model_update)
 
@@ -2953,6 +2972,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             src_vref = {'id': HPE3PARBaseDriver.VOLUME_ID,
                         'name': HPE3PARBaseDriver.VOLUME_NAME,
                         'size': 2, 'status': 'available'}
+            self.driver._login()
             model_update = self.driver.create_cloned_volume(volume, src_vref)
             self.assertIsNone(model_update)
 
@@ -2996,6 +3016,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             volume['id'] = HPE3PARBaseDriver.VOLUME_ID
             volume['host'] = volume_host
             volume['source_volid'] = HPE3PARBaseDriver.CLONE_ID
+            self.driver._login()
             model_update = self.driver.create_cloned_volume(volume, src_vref)
             self.assertIsNone(model_update)
             # creation of the temp snapshot
@@ -3058,6 +3079,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                         'size': 2, 'status': 'available',
                         'volume_type': 'replicated',
                         'volume_type_id': type_id_replicated}
+            self.driver._login()
             model_update = self.driver.create_cloned_volume(volume, src_vref)
             self.assertEqual(model_update['replication_status'],
                              fields.ReplicationStatus.ENABLED)
@@ -3249,6 +3271,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             result = self.driver.migrate_volume(context.get_admin_context(),
                                                 volume, host)
             self.assertIsNotNone(result)
@@ -3373,6 +3396,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                             side_effect=[mock.sentinel.comm1,
                                                          mock.sentinel.comm2])
 
+        self.driver._login()
         actual_update = self.driver.update_migrated_volume(
             context.get_admin_context(), fake_old_volume,
             fake_new_volume, original_volume_status)
@@ -3435,6 +3459,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         mock_get_comment = self.mock_object(_3common, '_get_updated_comment',
                                             side_effect=[mock.sentinel.comm])
 
+        self.driver._login()
         actual_update = self.driver.update_migrated_volume(
             context.get_admin_context(), fake_old_volume,
             fake_new_volume, 'available')
@@ -3482,6 +3507,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             rename_side_effect,
             None
         ]
+        self.driver._login()
         actual_update = self.driver.update_migrated_volume(
             context.get_admin_context(), fake_old_volume, fake_new_volume,
             original_volume_status)
@@ -3534,6 +3560,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         _3common = hpecommon.HPE3PARCommon
         self.mock_object(_3common, '_create_client', return_value=mock_client)
         mock_update = self.mock_object(_3common, '_update_comment')
+        self.driver._login()
         actual_update = self.driver.update_migrated_volume(
             context.get_admin_context(), fake_old_volume,
             fake_new_volume, original_volume_status)
@@ -3558,6 +3585,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.create_snapshot(snapshot)
 
             comment = {
@@ -3594,6 +3622,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.revert_to_snapshot(self.ctxt, snapshot['volume'],
                                            snapshot)
 
@@ -3624,6 +3653,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.revert_to_snapshot(
                 self.ctxt,
                 self.volume_replicated,
@@ -3646,6 +3676,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.delete_snapshot(self.snapshot)
 
             expected = [
@@ -3700,6 +3731,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.create_snapshot(self.snapshot)
 
             try:
@@ -3876,6 +3908,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             volume = self.volume_snapshot.copy()
             volume['size'] = self.volume['size'] + 10
 
+            self.driver._login()
             self.assertRaises(exception.CinderException,
                               self.driver.create_volume_from_snapshot,
                               volume, self.snapshot)
@@ -4175,6 +4208,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             grow_size = 3
             old_size = self.volume['size']
             new_size = old_size + grow_size
+            self.driver._login()
             self.driver.extend_volume(self.volume, str(new_size))
             growth_size_mib = grow_size * units.Ki
 
@@ -4204,6 +4238,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             grow_size = 3
             old_size = self.volume['size']
             new_size = old_size + grow_size
+            self.driver._login()
             self.driver.extend_volume(self.volume, str(new_size))
 
             self.assertEqual(2, mock_client.growVolume.call_count)
@@ -4228,6 +4263,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             grow_size = 3
             old_size = self.volume['size']
             new_size = old_size + grow_size
+            self.driver._login()
             self.assertRaises(hpeexceptions.HTTPForbidden,
                               self.driver.extend_volume,
                               self.volume,
@@ -4277,6 +4313,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             new_size = old_size + grow_size
 
             # Test a successful extend.
+            self.driver._login()
             self.driver.extend_volume(
                 self.volume_replicated,
                 new_size)
@@ -5088,6 +5125,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             volume = {}
             existing_ref = {'source-name': self.VOLUME_3PAR_NAME}
 
+            self.driver._login()
             self.assertRaises(exception.ManageExistingInvalidReference,
                               self.driver.manage_existing_get_size,
                               volume=volume,
@@ -5153,6 +5191,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             snapshot = {}
             existing_ref = {'source-name': self.SNAPSHOT_3PAR_NAME}
 
+            self.driver._login()
             self.assertRaises(exception.ManageExistingInvalidReference,
                               self.driver.manage_existing_snapshot_get_size,
                               snapshot=snapshot,
@@ -5233,6 +5272,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
 
+            self.driver._login()
             self.assertRaises(exception.SnapshotIsBusy,
                               self.driver.unmanage_snapshot,
                               snapshot=snapshot)
@@ -5409,6 +5449,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             mock_client.getCPG.return_value = {'domain': None}
             # create a group
             group = self.fake_group_object()
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             expected = [
@@ -5453,6 +5494,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                 'replication_status':
                                 fields.ReplicationStatus.ENABLED}
 
+            self.driver._login()
             model_update = \
                 self.driver.create_group(context.get_admin_context(), group)
 
@@ -5502,6 +5544,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             group.volume_types = [self.volume_type_tiramisu]
             group.status = fields.GroupStatus.DELETING
 
+            self.driver._login()
             self.driver.delete_group(context.get_admin_context(), group, [])
             expected = [
                 mock.call.getRemoteCopyGroup(self.RCG_3PAR_GROUP_NAME),
@@ -5544,6 +5587,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             group.volume_types = [self.volume_type_tiramisu]
             group.status = fields.GroupStatus.DELETING
 
+            self.driver._login()
             model_update, volume_model_updates = (
                 self.driver.delete_group(context.get_admin_context(),
                                          group, [self.volume]))
@@ -5587,6 +5631,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             group.is_replicated = True
             group.volume_types = [self.volume_type_tiramisu]
 
+            self.driver._login()
             self.driver.enable_replication(context.get_admin_context(),
                                            group, [self.volume])
 
@@ -5620,6 +5665,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             group.is_replicated = True
             group.volume_types = [self.volume_type_tiramisu]
 
+            self.driver._login()
             self.driver.disable_replication(context.get_admin_context(),
                                             group, [self.volume])
 
@@ -5802,6 +5848,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                                'replication_status':
                                fields.ReplicationStatus.ENABLED}]
             # add a volume to the consistency group
+            self.driver._login()
             model_update, add_volume, remove_volume = \
                 self.driver.update_group(context.get_admin_context(), group,
                                          add_volumes=[self.volume_tiramisu],
@@ -5870,6 +5917,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             exp_add_volume = [{'id': self.volume_tiramisu['id'],
                                'replication_status':
                                fields.ReplicationStatus.ENABLED}]
+            self.driver._login()
             # add a volume to the consistency group
             model_update, add_volume, remove_volume = \
                 self.driver.update_group(context.get_admin_context(), group,
@@ -5942,6 +5990,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             exp_remove_volume = [{'id': self.volume_tiramisu['id'],
                                   'replication_status': None}]
             # add a volume to the consistency group
+            self.driver._login()
             model_update, add_volume, remove_volume = \
                 self.driver.update_group(context.get_admin_context(), group,
                                          add_volumes=[],
@@ -5991,6 +6040,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                 '_create_client') as mock_create_client:
 
             mock_create_client.return_value = mock_client
+            self.driver._login()
             self.driver.create_volume(self.volume_replicated)
 
             expected = [
@@ -6047,6 +6097,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             volume['group'] = group
             volume['group_id'] = group.id
 
+            self.driver._login()
             return_model = self.driver.create_volume(volume)
 
             expected = [
@@ -6102,6 +6153,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             volume['group'] = group
             volume['migration_status'] = None
 
+            self.driver._login()
             self.driver.revert_to_snapshot(
                 self.ctxt,
                 volume,
@@ -6344,6 +6396,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                 mock.call.getRemoteCopyGroup(self.RCG_3PAR_GROUP_NAME),
                 mock.call.startRemoteCopy(self.RCG_3PAR_GROUP_NAME)]
 
+            self.driver._login()
             # Create a consistency group from a source consistency group.
             self.driver.create_group_from_src(
                 context.get_admin_context(), group,
@@ -6397,6 +6450,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
 
             # create a consistency group
             group = self.fake_group_object()
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             expected = [
@@ -6546,6 +6600,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
 
             # create a consistency group
             group = self.fake_group_object()
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             expected = [
@@ -6585,6 +6640,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
             # create a consistency group
             group = self.fake_group_object()
             volume = fake_volume.fake_volume_obj(context.get_admin_context())
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             # remove the consistency group
@@ -6630,6 +6686,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
 
             # create a consistency group
             group = self.fake_group_object()
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             expected = [
@@ -6674,6 +6731,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
 
             # create a consistency group
             group = self.fake_group_object()
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             expected = [
@@ -6739,6 +6797,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
 
             # create a consistency group
             group = self.fake_group_object()
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             expected = [
@@ -6806,6 +6865,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
 
             # create a consistency group
             group = self.fake_group_object()
+            self.driver._login()
             self.driver.create_group(context.get_admin_context(), group)
 
             expected = [
@@ -6882,6 +6942,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
 
             volumes = [self.volume_replicated]
             # Test invalid secondary target.
+            self.driver._login()
             self.assertRaises(
                 exception.InvalidReplicationTarget,
                 self.driver.failover_host,
@@ -7020,6 +7081,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
         with mock.patch.object(hpecommon.HPE3PARCommon,
                                '_create_client') as mock_create_client:
             mock_create_client.return_value = mock_client
+            self.driver._login()
             actual_cpg = self.driver.get_pool(self.volume)
             expected_cpg = HPE3PAR_CPG
 
@@ -7043,6 +7105,7 @@ class TestHPE3PARDriverBase(HPE3PARBaseDriver):
                 mock.call.getVolume(self.VOLUME_3PAR_NAME)
             ]
 
+            self.driver._login()
             try:
                 self.assertRaises(
                     hpeexceptions.HTTPNotFound,
