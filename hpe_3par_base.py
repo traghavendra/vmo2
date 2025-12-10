@@ -82,6 +82,9 @@ class HPE3PARDriverBase(driver.ManageableVD,
                                        self._active_backend_id)
 
     def _login(self, timeout=None, array_id=None):
+        if self.common:
+            return self.common
+
         self.common = self._init_common()
         # If replication is enabled and we cannot login, we do not want to
         # raise an exception so a failover can still be executed.
@@ -135,7 +138,8 @@ class HPE3PARDriverBase(driver.ManageableVD,
         if not refresh:
             return self._stats
 
-        self._stats = self.common.get_volume_stats(
+        common = self._login()
+        self._stats = common.get_volume_stats(
             refresh,
             self.get_filter_function(),
             self.get_goodness_function())
