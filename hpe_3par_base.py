@@ -78,9 +78,8 @@ class HPE3PARDriverBase(driver.ManageableVD,
         return hpecommon.HPE3PARCommon.get_driver_options()
 
     def _init_common(self):
-        self.common = hpecommon.HPE3PARCommon(self.configuration,
-                                              self._active_backend_id)
-        return self.common
+        return hpecommon.HPE3PARCommon(self.configuration,
+                                       self._active_backend_id)
 
     def _login(self, timeout=None, array_id=None):
         self.common = self._init_common()
@@ -103,9 +102,15 @@ class HPE3PARDriverBase(driver.ManageableVD,
     def _logout(self, common):
         # If replication is enabled and we do not have a client ID, we did not
         # login, but can still failover. There is no need to logout.
-        if common.client is None and common._replication_enabled:
-            return
-        common.client_logout()
+        try:
+            if common.client is None and common._replication_enabled:
+                return
+            common.client_logout()
+        except Exception as e:
+            if "invalid session key" in str(e).lower() or "resource in use" in str(e).lower():
+                LOG.warning("Session already killed or in use, ignoring.")
+            else:
+                raise
 
     def _check_flags(self, common):
         """Sanity check to ensure we have required options set."""
