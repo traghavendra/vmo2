@@ -116,10 +116,11 @@ class HPE3PARFCDriver(hpebasedriver.HPE3PARDriverBase):
         4.0.6 - Set NSP for single path attachments. Bug #1809249
         4.0.7 - Added Peer Persistence feature
         4.0.8 - For PP, return LUN ids from both arrays. Bug #2044255
+        4.0.9 - Fix session share issue. bug number <todo>
 
     """
 
-    VERSION = "4.0.8"
+    VERSION = "4.0.9"
 
     # The name of the CI wiki page.
     CI_WIKI_NAME = "HPE_Storage_CI"
@@ -210,7 +211,7 @@ class HPE3PARFCDriver(hpebasedriver.HPE3PARDriverBase):
         LOG.debug("volume id: %(volume_id)s",
                   {'volume_id': volume['id']})
         array_id = self.get_volume_replication_driver_data(volume)
-        common = self._login(array_id=array_id)
+        common = self._login(array_id=array_id, shared_obj=False)
         try:
             # we have to make sure we have a host
             host, cpg = self._create_host(common, volume, connector)
@@ -305,8 +306,10 @@ class HPE3PARFCDriver(hpebasedriver.HPE3PARDriverBase):
     @coordination.synchronized('3par-{volume.id}')
     def terminate_connection(self, volume, connector, **kwargs):
         """Driver entry point to detach a volume from an instance."""
+        LOG.debug("volume id: %(volume_id)s",
+                  {'volume_id': volume['id']})
         array_id = self.get_volume_replication_driver_data(volume)
-        common = self._login(array_id=array_id)
+        common = self._login(array_id=array_id, shared_obj=False)
         try:
             is_force_detach = connector is None
 
